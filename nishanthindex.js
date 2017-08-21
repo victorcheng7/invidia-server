@@ -35,6 +35,7 @@ function searchVideoData(searchPhrase) {
       }
     }
   }, function(error, response) {
+    res(response);
     console.log('Response: ' + JSON.stringify(response));
     // Go through each video
     for (var i = 0; i < response.hits.hits.length; i++) {

@@ -36,6 +36,8 @@ function searchVideoData(searchPhrase) {
     }
   }, function(error, response) {
     //res(response.hits.hits);
+    res(response.hits.hits)
+    /*
 
     console.log('Response: ' + JSON.stringify(response));
     // Go through each video
@@ -46,7 +48,7 @@ function searchVideoData(searchPhrase) {
         var occurancesArray = [];
         // Go thorugh each line in the video
         for (var j = 0; j < response.hits.hits[i]._source.cues.length; j++) {
-          console.log("TEXT: " + response.hits.hits[i]._source.cues[j].text);
+          //console.log("TEXT: " + response.hits.hits[i]._source.cues[j].text);
           if (response.hits.hits[i]._source.cues[j].text) {
             var textWords = response.hits.hits[i]._source.cues[j].text.toLowerCase().split(" ");
 
@@ -61,7 +63,7 @@ function searchVideoData(searchPhrase) {
             occurancesArray.push(common);
             //occurancesArray = removeConsecutive(occurancesArray);
             if (common >= 1) {
-              console.log('Timestamp: ' + response.hits.hits[i]._source.cues[j].timestamp);
+            //  console.log('Timestamp: ' + response.hits.hits[i]._source.cues[j].timestamp);
 
             }
           }
@@ -74,7 +76,7 @@ function searchVideoData(searchPhrase) {
           continue;
         }
 
-        console.log("COMMON OCCURANCES ARRAY: " + occurancesArray.toString());
+        //console.log("COMMON OCCURANCES ARRAY: " + occurancesArray.toString());
 
         for(var k = 0; k < occurancesArray.length; k++){
             if(occurancesArray[k] != 0){
@@ -112,23 +114,32 @@ function searchVideoData(searchPhrase) {
           return occurances[1] > 0;
         });
 
-        console.log("COMMON OCCURANCES ARRAY 2: " + sortable.toString());
+      //  console.log("COMMON OCCURANCES ARRAY 2: " + sortable.toString());
         for(var j = 0; j < sortable.length; j++){
           sortable[j][2] = response.hits.hits[i]._source.cues[parseInt(sortable[j][0])]["text"];
           sortable[j][0] = response.hits.hits[i]._source.cues[parseInt(sortable[j][0])].timestamp; // Timestamp
         }
 
-        console.log("VICTOR", sortable);
+        //console.log("VICTOR", sortable);
 
         response.hits.hits[i]._source.cues = sortable;
-        console.log(response.hits.hits[i]._source.cues);
+        //console.log(response.hits.hits[i]._source.cues);
       }
 
       res(response.hits.hits);
     //  res(response.hits.hits);
+*/
     });
   })
 }
+/*
+
+Pseudocode
+1) Combine 3 of the results into a longer duration
+2)
+
+Try it with match all toekns and find all tokens. If not enough matches, try it without match all tokens
+*/
 
 
 connectToClient();
@@ -138,7 +149,7 @@ app.get("/search", (req, res) => {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   searchVideoData(req.query.q)
   .then((data) => {
-    console.log(data);
+    //console.log(data);
     res.json(data);
 
   });
