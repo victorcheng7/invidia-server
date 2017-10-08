@@ -53,10 +53,6 @@ function sortResults(result){
   })
 }
 
-async function sortElastic(results){ //these are top 50
-  await sortResults(results);
-}
-
 function searchVideoData(searchPhrase) {
   var searchKeywords = searchPhrase.split(" ");
 
