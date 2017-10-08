@@ -84,7 +84,6 @@ function searchVideoData(searchPhrase) {
   }, function(error, response) {
     //res(response.hits.hits);
 
-    //TODO return the top result first
     response = response.hits.hits;
     response = response.filter((video) => {
       console.log(video);
@@ -95,7 +94,8 @@ function searchVideoData(searchPhrase) {
       var array = [];
       var aliasHighlight = response[index]["highlight"]["cues.text"];
       for(var highlight in aliasHighlight){
-        array.push(aliasHighlight[highlight].replace(/<[^>]*>/g, ""));
+        array.push(aliasHighlight[highlight].replace(/<(\/?|\!?)(em)>/g, ""));
+        //array.push(aliasHighlight[highlight].replace(/<[^>]*>/g, ""));
       }
       array = array.slice(0,3);
       // NOTE Only returning top 3 for "relevant cues because that's how many we're rendering in front end"
