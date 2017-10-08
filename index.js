@@ -51,10 +51,11 @@ function sortResults(result){
     }
     resolve();
   })
+}
 
-  async function sortElastic(results){ //these are top 50
-    await sortResults(results);
-  }
+async function sortElastic(results){ //these are top 50
+  await sortResults(results);
+}
 
 function searchVideoData(searchPhrase) {
   var searchKeywords = searchPhrase.split(" ");
@@ -122,4 +123,4 @@ app.get("/search", (req, res) => {
   });
 });
 
-app.listen(process.env.PORT || 5000, () => console.log("Server started"));
+app.listen(process.env.PORT || 5000, () => {console.log("Server started")});
