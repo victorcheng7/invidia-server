@@ -39,7 +39,7 @@ function searchVideoData(searchPhrase) {
     client.search({
     index: 'youtube-video-data-index',
     body: {
-       "from" : 0, "size" : 20, //TODO change this to 50 and then only return 20 at a time.
+       "from" : 0, "size" : 50, //TODO change this to larger number once pagination is implemented
         "query": {
           "bool": {
             "should": [
@@ -86,6 +86,11 @@ function searchVideoData(searchPhrase) {
 
     //TODO return the top result first
     response = response.hits.hits;
+    response = response.filter((video) => {
+      console.log(video);
+      return video["_source"]["info"]["statistics"] != null;
+    });
+
     for(var index in response){
       var array = [];
       var aliasHighlight = response[index]["highlight"]["cues.text"];
@@ -104,10 +109,12 @@ function searchVideoData(searchPhrase) {
       response[index]["_source"]["relevantCues"] = newCue;
     }
 
-    sortTop10(response).then((response) => res(response));
+    sortTop10(response).then((response) => res(response.slice(0,20)));
+
     });
   })
 }
+
 
 
 connectToClient();
