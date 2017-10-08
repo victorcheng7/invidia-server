@@ -21,6 +21,41 @@ function connectToClient() {
   });
 }
 
+function median(values) {
+    values.sort( function(a,b) {return a - b;} );
+    var half = Math.floor(values.length/2);
+    if(values.length % 2) return values[half];
+    return (values[half-1] + values[half]) / 2.0;
+}
+
+function returnMedianViewCount(result){
+  let viewCountArray = []; //NOTE make array of viewCounts and pass into median() to return median
+  for(video in result){
+    viewCountArray.push(result[video]["_source"]["info"]["statistics"]["viewCount"]); //TODO error cannot read viewCount of undefined
+  }
+  return median(viewCountArray);
+}
+
+function sortResults(result){
+  return new Promise((resolve, reject) => {
+    const checkResult = Object.assign({}, result);
+    result.sort( function(a,b){ return b["_source"]["relevantScore"]-a["_source"]["relevantScore"]}); //NOTE sort based on relevant scores
+    result === checkResult ? console.log(true) : console.log(false);
+    var median = returnMedianViewCount(result);
+    var top50 = [];
+    var bottom50 = [];
+    for(video in result){
+      var viewCount = result[video]["_source"]["info"]["statistics"]["viewCount"];
+      if(viewCount >= median) top50.push(result[video]);
+      else bottom50.push(result[video]);
+    }
+    resolve();
+  })
+
+  async function sortElastic(results){ //these are top 50
+    await sortResults(results);
+  }
+
 function searchVideoData(searchPhrase) {
   var searchKeywords = searchPhrase.split(" ");
 
@@ -28,7 +63,7 @@ function searchVideoData(searchPhrase) {
     client.search({
     index: 'youtube-video-data-index',
     body: {
-       "from" : 0, "size" : 50,
+       "from" : 0, "size" : 20,
         "query": {
             "match": { "cues.text": searchPhrase}
         },
@@ -57,99 +92,9 @@ function searchVideoData(searchPhrase) {
       response[index]["_source"]["relevantCues"] = newCue;
     }
 
+//TODO once relevantScore is added, i just have to sort results
     res(response);
-    /*
 
-    console.log('Response: ' + JSON.stringify(response));
-    // Go through each video
-    for (var i = 0; i < response.hits.hits.length; i++) {
-
-        var video_id = response.hits.hits[i]._source.video_id;
-
-        var occurancesArray = [];
-        // Go thorugh each line in the video
-        for (var j = 0; j < response.hits.hits[i]._source.cues.length; j++) {
-          //console.log("TEXT: " + response.hits.hits[i]._source.cues[j].text);
-          if (response.hits.hits[i]._source.cues[j].text) {
-            var textWords = response.hits.hits[i]._source.cues[j].text.toLowerCase().split(" ");
-
-            var common = 0;
-            for (var x = 0; x < textWords.length; x++) {
-                for (var y = 0; y < searchKeywords.length; y++) {
-                    if(textWords[x].toLowerCase().includes(searchKeywords[y].toLowerCase())) {
-                        common++;
-                    }
-                }
-            }
-            occurancesArray.push(common);
-            //occurancesArray = removeConsecutive(occurancesArray);
-            if (common >= 1) {
-            //  console.log('Timestamp: ' + response.hits.hits[i]._source.cues[j].timestamp);
-
-            }
-          }
-        }
-        function isAllZero(element, index, array){
-            return element == 0;
-        }
-
-        if(occurancesArray.every(isAllZero)){
-          continue;
-        }
-
-        //console.log("COMMON OCCURANCES ARRAY: " + occurancesArray.toString());
-
-        for(var k = 0; k < occurancesArray.length; k++){
-            if(occurancesArray[k] != 0){
-                var counter = k+1;
-                while(occurancesArray[counter] != 0 && counter < occurancesArray.length){
-                  counter++;
-                }
-                if(counter-1 != k){
-                  //array.fill(0, i+1, counter);
-                  //console.log(array.fill(0, i+1, counter));
-                  occurancesArray = occurancesArray.fill(0, k+1, counter);
-                  console.log(occurancesArray.fill(0, k+1, counter));
-                }
-                k = counter-1;
-            }
-        }
-
-        var dictionary = {};
-        var tempIndex = 0;
-        occurancesArray.forEach(function(element){
-          dictionary[tempIndex] = element
-          tempIndex++;
-        })
-
-        var sortable = [];
-        for (var vehicle in dictionary) {
-            sortable.push([vehicle, dictionary[vehicle]]);
-        }
-        sortable.sort(function(a, b) {
-            return a[1] - b[1];
-        });
-        sortable.reverse();
-
-        sortable = sortable.filter(function(occurances){
-          return occurances[1] > 0;
-        });
-
-      //  console.log("COMMON OCCURANCES ARRAY 2: " + sortable.toString());
-        for(var j = 0; j < sortable.length; j++){
-          sortable[j][2] = response.hits.hits[i]._source.cues[parseInt(sortable[j][0])]["text"];
-          sortable[j][0] = response.hits.hits[i]._source.cues[parseInt(sortable[j][0])].timestamp; // Timestamp
-        }
-
-        //console.log("VICTOR", sortable);
-
-        response.hits.hits[i]._source.cues = sortable;
-        //console.log(response.hits.hits[i]._source.cues);
-      }
-
-      res(response.hits.hits);
-    //  res(response.hits.hits);
-*/
     });
   })
 }
