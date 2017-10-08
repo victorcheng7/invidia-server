@@ -41,7 +41,23 @@ function searchVideoData(searchPhrase) {
     }
   }, function(error, response) {
     //res(response.hits.hits);
-    res(response.hits.hits)
+    response = response.hits.hits;
+    for(var index in response){
+      var array = [];
+      var aliasHighlight = response[index]["highlight"]["cues.text"];
+      for(var highlight in aliasHighlight){
+        array.push(aliasHighlight[highlight].replace(/<[^>]*>/g, ""));
+      }
+      console.log(array);
+
+      var newCue = [];
+      newCue = response[index]["_source"]["cues"].filter(function(word){
+        return array.includes(word["text"]);
+      });
+      response[index]["_source"]["cues"] = newCue;
+    }
+
+    res(response);
     /*
 
     console.log('Response: ' + JSON.stringify(response));
