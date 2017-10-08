@@ -33,6 +33,7 @@ function sortTop10(result){
   })
 }
 
+
 function searchVideoData(searchPhrase) {
   var searchKeywords = searchPhrase.split(" ");
   return new Promise((res, rej) => {
@@ -87,7 +88,7 @@ function searchVideoData(searchPhrase) {
     response = response.hits.hits;
     response = response.filter((video) => {
       console.log(video);
-      return video["_source"]["info"]["statistics"] != null;
+      return video["_source"]["info"]["statistics"] != null && parseInt(video["_source"]["info"]["statistics"]["viewCount"]) > 1500; //TODO remove this during launch
     });
 
     for(var index in response){
