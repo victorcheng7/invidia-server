@@ -59,7 +59,6 @@ async function elasticSort(data){
 
 function searchVideoData(searchPhrase) {
   var searchKeywords = searchPhrase.split(" ");
-
   return new Promise((res, rej) => {
     client.search({
     index: 'youtube-video-data-index',
@@ -108,6 +107,8 @@ function searchVideoData(searchPhrase) {
         }*/
   }, function(error, response) {
     //res(response.hits.hits);
+
+    //TODO return the top result first
     response = response.hits.hits;
     for(var index in response){
       var array = [];
@@ -115,6 +116,9 @@ function searchVideoData(searchPhrase) {
       for(var highlight in aliasHighlight){
         array.push(aliasHighlight[highlight].replace(/<[^>]*>/g, ""));
       }
+      array = array.slice(0,3);
+      // NOTE Only returning top 3 for "relevant cues because that's how many we're rendering in front end"
+
 
       response[index]["_source"]["relevantCues"] = response[index]["_source"]["cues"].slice(0);
       var newCue = [];
