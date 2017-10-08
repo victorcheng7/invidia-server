@@ -52,10 +52,10 @@ function sortResults(result){
     resolve();
   })
 }
-
+/*
 async function elasticSort(data){
   return await sortResults(data);
-}
+}*/
 
 function searchVideoData(searchPhrase) {
   var searchKeywords = searchPhrase.split(" ");
