@@ -28,11 +28,16 @@ function searchVideoData(searchPhrase) {
     client.search({
     index: 'youtube-video-data-index',
     body: {
-      query: {
-        match: {
-          "cues.text": searchPhrase
+       "from" : 0, "size" : 50,
+        "query": {
+            "match": { "cues.text": "contact us" }
+        },
+        "highlight": {
+           "order": "score",
+            "fields": {
+                "cues.text" : {}
+            }
         }
-      }
     }
   }, function(error, response) {
     //res(response.hits.hits);

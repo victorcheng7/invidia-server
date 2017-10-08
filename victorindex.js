@@ -53,7 +53,7 @@ function searchVideoData(searchPhrase) {
           "text"
         ]
     };
-/* -------------------------- Combine one snippet cue into one -------------------- */
+/* -------------------------- Combine one snippet cue into one -------------------- 1) one search to find exact for all docuemnts returned 2) top 50 */
     var combineThreeSnips = [];
     response.hits.hits.forEach((item, index) =>{
       var cues = item._source.cues;
