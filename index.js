@@ -53,6 +53,10 @@ function sortResults(result){
   })
 }
 
+async function elasticSort(data){
+  return await sortResults(data);
+}
+
 function searchVideoData(searchPhrase) {
   var searchKeywords = searchPhrase.split(" ");
 
@@ -60,8 +64,40 @@ function searchVideoData(searchPhrase) {
     client.search({
     index: 'youtube-video-data-index',
     body: {
-       "from" : 0, "size" : 20,
+       "from" : 0, "size" : 20, //TODO change this to 50 and then only return 20 at a time.
         "query": {
+          "bool": {
+            "should": [
+              {
+                "match": {
+                  "cues.text": searchPhrase
+                }
+              },
+              {
+                "match_phrase": {
+                   "message" : {
+                      "query" : searchPhrase,
+                      "boost": 10
+                    }
+                  }
+              },
+
+              {
+                "fuzzy": {
+                  "cuex.text": searchPhrase
+                }
+              }
+            ]
+          }
+        },
+      "highlight": {
+         "order": "score",
+          "fields": {
+              "cues.text" : {}
+          }
+      }
+    }
+    /* "query": {
             "match": { "cues.text": searchPhrase}
         },
         "highlight": {
@@ -69,8 +105,7 @@ function searchVideoData(searchPhrase) {
             "fields": {
                 "cues.text" : {}
             }
-        }
-    }
+        }*/
   }, function(error, response) {
     //res(response.hits.hits);
     response = response.hits.hits;
@@ -89,20 +124,13 @@ function searchVideoData(searchPhrase) {
       response[index]["_source"]["relevantCues"] = newCue;
     }
 
-//TODO once relevantScore is added, i just have to sort results
+    //TODO once relevantScore is added, elasticSort(response)
+    //TODO Only return 20
     res(response);
 
     });
   })
 }
-/*
-
-Pseudocode
-1) Combine 3 of the results into a longer duration
-2)
-
-Try it with match all toekns and find all tokens. If not enough matches, try it without match all tokens
-*/
 
 
 connectToClient();
@@ -118,5 +146,7 @@ app.get("/search", (req, res) => {
 
   });
 });
+
+//TODO pagination route where you request the next 20
 
 app.listen(process.env.PORT || 5000, () => {console.log("Server started")});
