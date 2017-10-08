@@ -21,41 +21,17 @@ function connectToClient() {
   });
 }
 
-function median(values) {
-    values.sort( function(a,b) {return a - b;} );
-    var half = Math.floor(values.length/2);
-    if(values.length % 2) return values[half];
-    return (values[half-1] + values[half]) / 2.0;
-}
-
-function returnMedianViewCount(result){
-  let viewCountArray = []; //NOTE make array of viewCounts and pass into median() to return median
-  for(video in result){
-    viewCountArray.push(result[video]["_source"]["info"]["statistics"]["viewCount"]); //TODO error cannot read viewCount of undefined
-  }
-  return median(viewCountArray);
-}
-
-function sortResults(result){
+function sortTop10(result){
   return new Promise((resolve, reject) => {
-    const checkResult = Object.assign({}, result);
-    result.sort( function(a,b){ return b["_source"]["relevantScore"]-a["_source"]["relevantScore"]}); //NOTE sort based on relevant scores
-    result === checkResult ? console.log(true) : console.log(false);
-    var median = returnMedianViewCount(result);
-    var top50 = [];
-    var bottom50 = [];
-    for(video in result){
-      var viewCount = result[video]["_source"]["info"]["statistics"]["viewCount"];
-      if(viewCount >= median) top50.push(result[video]);
-      else bottom50.push(result[video]);
-    }
-    resolve();
+    var top10 = result.slice(0,10);
+    var rest = result.slice(10);
+    top10.sort(function(a,b){
+      return ((b["likeCount"] - b["dislikeCount"])/b["viewCount"]) - ((a["likeCount"] - a["dislikeCount"])/a["viewCount"]);
+    })
+    result = top10.concat(rest);
+    resolve(result);
   })
 }
-/*
-async function elasticSort(data){
-  return await sortResults(data);
-}*/
 
 function searchVideoData(searchPhrase) {
   var searchKeywords = searchPhrase.split(" ");
@@ -128,10 +104,7 @@ function searchVideoData(searchPhrase) {
       response[index]["_source"]["relevantCues"] = newCue;
     }
 
-    //TODO once relevantScore is added, elasticSort(response)
-    //TODO Only return 20
-    res(response);
-
+    sortTop10(response).then((response) => res(response));
     });
   })
 }
