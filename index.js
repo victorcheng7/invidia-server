@@ -30,7 +30,7 @@ function searchVideoData(searchPhrase) {
     body: {
        "from" : 0, "size" : 50,
         "query": {
-            "match": { "cues.text": "contact us" }
+            "match": { "cues.text": searchPhrase}
         },
         "highlight": {
            "order": "score",
@@ -48,13 +48,13 @@ function searchVideoData(searchPhrase) {
       for(var highlight in aliasHighlight){
         array.push(aliasHighlight[highlight].replace(/<[^>]*>/g, ""));
       }
-      console.log(array);
 
+      response[index]["_source"]["relevantCues"] = response[index]["_source"]["cues"].slice(0);
       var newCue = [];
-      newCue = response[index]["_source"]["cues"].filter(function(word){
+      newCue = response[index]["_source"]["relevantCues"].filter(function(word){
         return array.includes(word["text"]);
       });
-      response[index]["_source"]["cues"] = newCue;
+      response[index]["_source"]["relevantCues"] = newCue;
     }
 
     res(response);
