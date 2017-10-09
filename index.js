@@ -1,11 +1,12 @@
 var elasticsearch = require('elasticsearch');
 var path = require('path');
+var dotenv = require('dotenv');
 var express = require('express');
 
 var app = express();
 
 var client = new elasticsearch.Client({
-  host: 'https://search-video-data-domain-lo5oj6jfkwcejhg6y4mirb75ie.us-west-2.es.amazonaws.com',
+  host: 'https://search-video-data-domain-lo5oj6jfkwcejhg6y4mirb75ie.us-west-2.es.amazonaws.com', //TODO make this in .env
   log: []
 });
 
@@ -40,7 +41,7 @@ function searchVideoData(searchPhrase) {
     client.search({
     index: 'youtube-video-data-index',
     body: {
-       "from" : 0, "size" : 50, //TODO change this to larger number once pagination is implemented
+       "from" : 0, "size" : 200, //TODO possibly change this value
         "query": {
           "bool": {
             "should": [
@@ -75,20 +76,16 @@ function searchVideoData(searchPhrase) {
     }
     /* "query": {
             "match": { "cues.text": searchPhrase}
-        },
-        "highlight": {
-           "order": "score",
-            "fields": {
-                "cues.text" : {}
-            }
         }*/
   }, function(error, response) {
     //res(response.hits.hits);
 
     response = response.hits.hits;
+    var responseLength = response.length;
     response = response.filter((video) => {
       console.log(video);
-      return video["_source"]["info"]["statistics"] != null && parseInt(video["_source"]["info"]["statistics"]["viewCount"]) > 1500; //TODO remove this during launch
+      return video["_source"]["info"]["statistics"] != null && parseInt(video["_source"]["info"]["statistics"]["viewCount"]) > 1500;
+      //TODO remove this during launch and replace with removing bottom 25 percentile if there are > 30 results
     });
 
     for(var index in response){
