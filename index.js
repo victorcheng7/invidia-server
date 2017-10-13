@@ -1,12 +1,11 @@
 var elasticsearch = require('elasticsearch');
 var path = require('path');
-var dotenv = require('dotenv');
 var express = require('express');
 
 var app = express();
 
 var client = new elasticsearch.Client({
-  host: 'https://search-video-data-domain-lo5oj6jfkwcejhg6y4mirb75ie.us-west-2.es.amazonaws.com', //TODO make this in .env
+  host: process.env.ELASTIC_HOST,
   log: []
 });
 
