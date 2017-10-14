@@ -1,9 +1,10 @@
 var elasticsearch = require('elasticsearch');
 var path = require('path');
+var dotenv = require('dotenv');
+dotenv.config();
 var express = require('express');
 
 var app = express();
-
 var client = new elasticsearch.Client({
   host: process.env.ELASTIC_HOST,
   log: []
@@ -14,6 +15,7 @@ function connectToClient() {
     requestTimeout: 30000,
   }, function (error) {
     if (error) {
+      console.log(error);
       console.error('Elasticsearch cluster is down!');
     } else {
       console.log('Elasticsearch cluster connection working.');
