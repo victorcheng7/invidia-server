@@ -42,7 +42,7 @@ function searchVideoData(searchPhrase) {
     client.search({
     index: 'youtube-video-data-index',
     body: {
-       "from" : 0, "size" : 200, //TODO possibly change this value
+       "from" : 0, "size" : 100, //TODO possibly change this value
         "query": {
           "bool": {
             "should": [
@@ -84,7 +84,6 @@ function searchVideoData(searchPhrase) {
     response = response.hits.hits;
     var responseLength = response.length;
     response = response.filter((video) => {
-      console.log(video);
       return video["_source"]["info"]["statistics"] != null && parseInt(video["_source"]["info"]["statistics"]["viewCount"]) > 1500;
       //TODO remove this during launch and replace with removing bottom 25 percentile if there are > 30 results
     });
@@ -121,7 +120,6 @@ connectToClient();
 app.get("/search", (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  console.log(req.query.q);
   searchVideoData(req.query.q)
   .then((data) => {
     //console.log(data);
